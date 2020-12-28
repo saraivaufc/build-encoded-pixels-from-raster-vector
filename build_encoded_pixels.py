@@ -1,4 +1,5 @@
 import os
+import argparse
 
 import numpy as np
 import pandas as pd
@@ -12,10 +13,21 @@ image_channels = 3
 spatial_resolution = 30
 background_pixel = 0
 
-image_path = 'image.tif'
-labels_path = 'labels.gpkg'
-train_path = 'data/train.csv'
-images_folder = 'data/train_images'
+parser = argparse.ArgumentParser()
+parser.add_argument('--image', type=str, nargs='?',
+                    help="Input image e.g image.tif")
+parser.add_argument('--labels', type=str, nargs='?',
+                    help="Labels e.g labels.shp")
+parser.add_argument('--dataset', type=str, nargs='?', default='train',
+                    help="Dataset e.g train or test")
+
+args = parser.parse_args()
+
+image_path = args.image
+labels_path = args.labels
+
+train_path = 'data/{d}.csv'.format(d=args.dataset)
+images_folder = 'data/{d}_images'.format(d=args.dataset)
 temp_raster = 'data/temp.tif'
 temp_vector = 'data/temp.gpkg'
 

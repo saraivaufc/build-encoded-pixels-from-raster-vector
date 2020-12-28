@@ -35,6 +35,13 @@ Install Others Requirements
 (env) $ pip3 install GDAL==$(gdal-config --version) --global-option=build_ext --global-option="-I/usr/include/gdal"
 ```
 
+### Usage
+
+```shell
+(env) $ python3 build_encoded_pixels.py --image=image.tif --labels=labels.gpkg --dataset=train
+
+(env) $ python3 build_encoded_pixels.py --image=test_image.tif --labels=test_labels.gpkg --dataset=test
+```
 
 <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">
     <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" />
