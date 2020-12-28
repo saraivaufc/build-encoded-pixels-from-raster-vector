@@ -1,3 +1,6 @@
+import numpy as np
+from skimage import exposure
+
 def get_extent(dataset):
     # Get extent
     geoTransform = dataset.GetGeoTransform()
@@ -10,6 +13,23 @@ def get_extent(dataset):
     # that the image will fill specified as (left, right, bottom, top)
     extent = [minx, maxx, miny, maxy]
     return extent
+
+
+def apply_contrast(img):
+    img_rescaled = np.zeros(img.shape)
+    for band_idx in range(img.shape[2]):
+        in_low, in_high = 2, 98
+
+        band_data = img[:, :, band_idx]
+        valid_data = band_data[np.isfinite(band_data)]
+
+        low, high = np.percentile(valid_data, (in_low, in_high))
+
+        band_data = exposure.rescale_intensity(band_data,
+                                               in_range=(low, high))
+
+        img_rescaled[:, :, band_idx] = band_data
+    return img_rescaled
 
 def sliding_window(image, chip_size):
 

@@ -5,7 +5,7 @@ import pandas as pd
 from PIL import Image as im
 from osgeo import gdal, ogr
 
-from image_utils import sliding_window, get_extent
+from image_utils import sliding_window, get_extent, apply_contrast
 
 image_size = 512
 image_channels = 3
@@ -15,7 +15,7 @@ background_pixel = 0
 image_path = 'image.tif'
 labels_path = 'labels.gpkg'
 train_path = 'data/train.csv'
-images_folder = 'data/train'
+images_folder = 'data/train_images'
 temp_raster = 'data/temp.tif'
 temp_vector = 'data/temp.gpkg'
 
@@ -32,6 +32,7 @@ layer = labels_dataset.GetLayer(0)
 
 image = image_dataset.ReadAsArray()
 image = image.transpose(1, 2, 0)
+image = apply_contrast(image)
 extent = get_extent(image_dataset)
 
 filename, extension = os.path.basename(image_path).split('.')
@@ -39,11 +40,14 @@ filename, extension = os.path.basename(image_path).split('.')
 for (x, y, window) in sliding_window(image, image_size):
     chip = np.array(window[:, :, : image_channels], dtype=np.uint8)
 
-    image_id = "{filename}_{x}_{y}.jpg".format(filename=filename, x=x, y=y)
-
     image_data = im.fromarray(chip)
-    image_data.save('{folder}/{filename}'.format(folder=images_folder,
-                                                 filename=image_id))
+
+    image_id = "{filename}-{x}-{y}.jpg".format(filename=filename, x=x, y=y)
+
+    output_image = '{folder}/{filename}'.format(folder=images_folder,
+                                                filename=image_id)
+    if not os.path.exists(output_image):
+        image_data.save(output_image)
 
     left = extent[0] + (x * spatial_resolution)
     right = left + (image_size * spatial_resolution)
@@ -68,6 +72,8 @@ for (x, y, window) in sliding_window(image, image_size):
 
     for feature in layer:
         geom = feature.GetGeometryRef()
+        class_name = feature.GetField("class_name")\
+            .replace('_','').replace('-','')
 
         target_ds = gdal.GetDriverByName('GTiff').Create(temp_raster,
                                                          image_size,
@@ -134,7 +140,7 @@ for (x, y, window) in sliding_window(image, image_size):
 
         encoded_pixels = " ".join([str(int) for int in feature_encoded_pixels])
 
-        train_df = train_df.append({'Image_Label': image_id,
+        train_df = train_df.append({'Image_Label': image_id + '_' + class_name,
                                     'EncodedPixels': encoded_pixels},
                                    ignore_index=True)
 
