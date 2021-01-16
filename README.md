@@ -40,7 +40,7 @@ Install Others Requirements
 ```shell
 (env) $ python3 build_encoded_pixels.py --image=image.tif --labels=labels.gpkg --dataset=train
 
-(env) $ python3 build_encoded_pixels.py --image=test_image.tif --labels=test_labels.gpkg --dataset=test
+(env) $ python3 build_encoded_pixels.py --image=image2.tif --labels=labels2.gpkg --dataset=test
 ```
 
 <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">

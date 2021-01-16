@@ -49,6 +49,8 @@ extent = get_extent(image_dataset)
 
 filename, extension = os.path.basename(image_path).split('.')
 
+filename = filename.replace('_', '-')
+
 for (x, y, window) in sliding_window(image, image_size):
     chip = np.array(window[:, :, : image_channels], dtype=np.uint8)
 
@@ -58,8 +60,6 @@ for (x, y, window) in sliding_window(image, image_size):
 
     output_image = '{folder}/{filename}'.format(folder=images_folder,
                                                 filename=image_id)
-    if not os.path.exists(output_image):
-        image_data.save(output_image)
 
     left = extent[0] + (x * spatial_resolution)
     right = left + (image_size * spatial_resolution)
@@ -78,7 +78,9 @@ for (x, y, window) in sliding_window(image, image_size):
 
     layer.SetSpatialFilter(ogr.CreateGeometryFromWkt(wkt))
 
-    # print("Features:", layer.GetFeatureCount())
+    if layer.GetFeatureCount() >= 1:
+        if not os.path.exists(output_image):
+            image_data.save(output_image)
 
     encoded_pixels = []
 
